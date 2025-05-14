@@ -1134,6 +1134,20 @@ LteRlcUm::ReassembleOutsideWindow(void)
     NS_LOG_LOGIC("Reassemble Outside Window");
 
     std::map<uint16_t, Ptr<Packet>>::iterator it;
+    it = ++m_rxBuffer.find(m_vrUh.GetValue()-1);
+
+    while ((it != m_rxBuffer.end()) && !IsInsideReorderingWindow(SequenceNumber10(it->first)))
+    {
+        NS_LOG_LOGIC("SN = " << it->first);
+
+        // Reassemble RLC SDUs and deliver the PDCP PDU to upper layer
+        ReassembleAndDeliver(it->second);
+
+        std::map<uint16_t, Ptr<Packet>>::iterator it_tmp = it;
+        ++it;
+        m_rxBuffer.erase(it_tmp);
+    }
+
     it = m_rxBuffer.begin();
 
     while ((it != m_rxBuffer.end()) && !IsInsideReorderingWindow(SequenceNumber10(it->first)))
