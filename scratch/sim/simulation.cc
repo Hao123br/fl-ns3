@@ -325,7 +325,7 @@ std::vector<ClientModels> trainClients() {
     std::vector<ClientModels> clientsInfo;
     LOG("=================== " << Simulator::Now().GetSeconds() << " seconds.");
 
-    bool dummy = true;  // Toggle for dummy mode
+    bool dummy = false;  // Toggle for dummy mode
     // bool dummy = true;  // Toggle for dummy mode
 
     // Set up algorithm-specific parameters
