@@ -54,6 +54,7 @@ static constexpr int numberOfEnbs = 5;
 static constexpr int numberOfParticipatingClients = numberOfUes;
 static constexpr int scenarioSize = 1000;
 std::string algorithm = "weighted_fedavg";
+bool useMobTrace = false;
 
 DataFrame accuracy_df;
 DataFrame participation_df;
@@ -737,6 +738,7 @@ int main(int argc, char *argv[]) {
     // Parse command line arguments
     CommandLine cmd;
     cmd.AddValue("algorithm", ALGORITHM_DESC, algorithm);
+    cmd.AddValue("useMobTrace", "Enable mobility trace. If false use random walk", useMobTrace);
     cmd.Parse(argc, argv);
 
     // Create LTE helper and EPC helper
@@ -792,10 +794,24 @@ int main(int argc, char *argv[]) {
         enbPositionAlloc->Add(Vector(dist(rng), dist(rng), dist(rng)));
     }
 
-    // Install mobility models
-    std::string traceFile = "mobility_traces/campus.ns_movements";
-    Ns2MobilityHelper ns2(traceFile);
-    ns2.Install(ueNodes.Begin(), ueNodes.End());
+	// Install mobility models
+	if (useMobTrace) {
+		std::string traceFile = "mobility_traces/campus.ns_movements";
+		Ns2MobilityHelper ns2(traceFile);
+		ns2.Install(ueNodes.Begin(), ueNodes.End());
+	} else {
+		MobilityHelper ueMobility;
+		ueMobility.SetMobilityModel ("ns3::RandomWalk2dMobilityModel",
+									"Mode", StringValue ("Time"),
+									"Time", StringValue ("5s"),
+									"Speed", StringValue ("ns3::UniformRandomVariable[Min=2.0|Max=8.0]"),
+									"Bounds", RectangleValue (Rectangle (0, scenarioSize, 0, scenarioSize)));
+		ueMobility.SetPositionAllocator("ns3::RandomBoxPositionAllocator",
+									 "X", StringValue (std::string("ns3::UniformRandomVariable[Min=0.0|Max=") + std::to_string(scenarioSize) + "]"),
+									 "Y", StringValue (std::string("ns3::UniformRandomVariable[Min=0.0|Max=") + std::to_string(scenarioSize) + "]"),
+									 "Z", StringValue (std::string("ns3::UniformRandomVariable[Min=0.0|Max=") + std::to_string(scenarioSize) + "]"));
+		ueMobility.Install (ueNodes);
+	}
 
     enbmobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
     enbmobility.SetPositionAllocator(enbPositionAlloc);
