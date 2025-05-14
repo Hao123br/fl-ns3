@@ -209,7 +209,7 @@ void issueTrainingRequests() {
             << "\"n_clients\": " << ueNodes.GetN() << ", "
             << "\"client_id\": " << i << ", "
             << "\"epochs\": 1, "
-            << "\"model\": \"models/" << ueNodes.Get(i) << ".keras\", "
+            << "\"model\": \"models/" << ueNodes.Get(i)->GetId() << ".keras\", "
             << "\"top_n\": 3, "
             << "\"algorithm\": \"" << algorithm << "\"}'";
 
@@ -231,7 +231,7 @@ void waitForFile(const std::string& filename) {
 
 int getBaseModelSize(uint32_t i) {
     std::stringstream modelFile;
-    modelFile << "models/" << ueNodes.Get(i) << ".keras";
+    modelFile << "models/" << ueNodes.Get(i)->GetId() << ".keras";
     int baseModelSize = getFileSize(modelFile.str());
     return baseModelSize / 2;  // Default to uncompressed size
 }
@@ -296,7 +296,7 @@ void collectTrainingMetrics(std::vector<ClientModels>& clientsInfo, double fedpr
     for (uint32_t i = 0; i < ueNodes.GetN(); ++i) {
         // Wait for the training completion signal file
         std::stringstream finishFile;
-        finishFile << "models/" << ueNodes.Get(i) << ".finish";
+        finishFile << "models/" << ueNodes.Get(i)->GetId() << ".finish";
         waitForFile(finishFile.str());
 
         // Retrieve model size and other metrics
@@ -400,7 +400,7 @@ std::vector<ClientModels> clientSelectionSinr(int n, std::vector<ClientModels> c
         //  = sinr_clients[i].second;
         // client.selected = true;
         std::stringstream modelFilename;
-        modelFilename << "models/" << clientsInfo[i].node << ".keras";
+        modelFilename << "models/" << clientsInfo[i].node->GetId() << ".keras";
         selectedClientsJson["selected_clients"].push_back(modelFilename.str());
     }
     std::ofstream out("selected_clients.json");
@@ -430,7 +430,7 @@ std::vector<ClientModels> clientSelectionRandom(int n, std::vector<ClientModels>
         clientsInfo[i].selected = true;
         // Add the model filename of the selected client to the JSON object
         std::stringstream modelFilename;
-        modelFilename << "models/" << ueNodes.Get(i) << ".keras";
+        modelFilename << "models/" << ueNodes.Get(i)->GetId() << ".keras";
         selectedClientsJson["selected_clients"].push_back(modelFilename.str());
     }
 
