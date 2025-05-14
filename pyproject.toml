@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "fl-ns3"
+version = "0.1.0"
+description = ""
+authors = ["Hao123br <carlosh2340@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+tensorflow = "^2.18.0"
+scikit-learn = "^1.6.1"
+keras = "^3.9.2"
+fastapi = "^0.115.12"
+uvicorn = "^0.34.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
