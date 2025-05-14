@@ -10,6 +10,7 @@ rm *.json
 rm *.png 
 rm *.csv 
 rm metrics.txt 
+rm tx_times.log
 
 set -e
 
@@ -86,6 +87,7 @@ for num_ues in "${ues_values[@]}"; do
         mv *.png "$run_dir/" 2>/dev/null || true
         mv *.csv "$run_dir/" 2>/dev/null || true
         mv metrics.txt "$run_dir/" 2>/dev/null || true
+        mv tx_times.log "$run_dir/" 2>/dev/null || true
 
         echo "Files for numberOfUes = $num_ues and algorithm = $algorithm stored in $run_dir"
     done

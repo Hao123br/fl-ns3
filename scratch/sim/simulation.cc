@@ -629,6 +629,18 @@ void exportDataFrames() {
     throughput_df.toCsv("throughput.csv");
 }
 
+void writeTxTimeLog(std::vector<ClientModels> selectedClients)
+{
+	std::ofstream logfile("tx_times.log", std::ios_base::app);
+	for (auto c : selectedClients) {
+        Ptr<Ipv4> ipv4 = c.node->GetObject<Ipv4>();
+        Ipv4InterfaceAddress iaddr = ipv4->GetAddress(1, 0);
+        Ipv4Address ipAddr = iaddr.GetLocal();
+		logfile << roundNumber << "," << c.node->GetId() << "," << endOfStreamTimes[ipAddr] << std::endl;
+	}
+	logfile.close();
+}
+
 void manager() {
     static Time roundStart;
 
@@ -643,6 +655,7 @@ void manager() {
     nodesIPs = nodeToIps();
 
     if (roundFinished) {
+		writeTxTimeLog(selectedClients);
         finalizeRound();
         startNewRound(roundStart);
     }
@@ -818,6 +831,10 @@ int main(int argc, char *argv[]) {
     // Schedule events
     Simulator::Schedule(MANAGER_INTERVAL, &manager);
     Simulator::Schedule(MANAGER_INTERVAL, &networkInfo, monitor);
+
+	std::ofstream modelTxTimeLog("tx_times.log", std::ios_base::trunc);
+	modelTxTimeLog << "round,nodeid,modeltxtime" << std::endl;
+	modelTxTimeLog.close();
 
     // Set up animation for visualization
     AnimationInterface anim("mmwave-animation.xml");
