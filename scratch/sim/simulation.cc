@@ -700,6 +700,18 @@ void exportDataFrames() {
   NS_LOG_INFO("All DataFrames exported.");
 }
 
+void writeTxTimeLog(std::vector<ClientModels> selectedClients)
+{
+	std::ofstream logfile("tx_times.log", std::ios_base::app);
+	for (auto c : selectedClients) {
+        Ptr<Ipv4> ipv4 = c.node->GetObject<Ipv4>();
+        Ipv4InterfaceAddress iaddr = ipv4->GetAddress(1, 0);
+        Ipv4Address ipAddr = iaddr.GetLocal();
+		logfile << roundNumber << "," << c.node->GetId() << "," << endOfStreamTimes[ipAddr] << std::endl;
+	}
+	logfile.close();
+}
+
 void manager() {
   static Time roundStartTimeNs3Comms =
       Simulator::Now(); // Initialize to current time at first call
@@ -767,6 +779,7 @@ void manager() {
     //    Simulator::Stop(); // Stop the simulation
     //    return; // Don't schedule next manager call
     // }
+	writeTxTimeLog(selectedClientsForCurrentRound);
 
     startNewFLRound(roundStartTimeNs3Comms); // This will attempt to set
                                              // roundFinished=false
@@ -1098,6 +1111,10 @@ int main(int argc, char *argv[]) {
   Simulator::Schedule(Seconds(1.0), &networkInfo,
                       monitor); // Start network info collection
   NS_LOG_INFO("Manager and networkInfo functions scheduled.");
+
+  std::ofstream modelTxTimeLog("tx_times.log", std::ios_base::trunc);
+  modelTxTimeLog << "round,nodeid,modeltxtime" << std::endl;
+  modelTxTimeLog.close();
 
   AnimationInterface anim("fl_api_mmwave_animation.xml");
   // anim.SetMobilityPollInterval(Seconds(1)); // Optional: control netanim
